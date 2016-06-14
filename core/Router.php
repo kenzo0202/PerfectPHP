@@ -27,7 +27,8 @@ class Router{
 
         return $routes;
     }
-
+    
+    //渡されたルーティング定義とパス情報を照合する
     public function resolve($path_info){
         if('/' !== substr($path_info,0,1)){
             $path_info = '/'.$path_info;

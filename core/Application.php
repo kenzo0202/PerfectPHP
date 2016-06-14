@@ -5,10 +5,11 @@ abstract class Application{
     protected $response;
     protected $session;
     protected $db_manager;
+    protected $router;
     //ログイン画面へのコントローラとアクションを指定する
     protected $login_action = array();
 
-    public function __constract($debug = false){
+    public function __construct($debug = false){
         $this->setDebugMode($debug);
         $this->initialize();
         $this->configure();
@@ -30,16 +31,16 @@ abstract class Application{
         $this->request = new Request();
         $this->response = new Response();
         $this->session = new Session();
-        $this->db_manager = new DbmManager();
+        $this->db_manager = new DbManager();
         $this->router = new Router($this->registerRoutes());
     }
 
     protected function configure(){
-
+        //アプリケーションの設定を行う部分
     }
     abstract public function getRootDir();
 
-    abstract public function registerRoutes();
+    abstract protected function registerRoutes();
 
     public function isDebugMode(){
         return $this->debug;
@@ -71,7 +72,7 @@ abstract class Application{
 
     public function run(){
         try{
-            $params = $this->router->resolve($this->requesst->getPathInfo());
+            $params = $this->router->resolve($this->request->getPathInfo());
             if($params === false){
                 throw new HttpNotFoundException('No route found for'.$this->request->getPathInfo());
             }
@@ -117,7 +118,7 @@ EOF
             throw new HttpNotFoundException($controller_class.'controller is not found');
         }
 
-        $content->$controller->run($aciton,$params);
+        $content = $controller->run($action,$params);
 
         $this->response->setContent($content);
     }

@@ -26,14 +26,14 @@ abstract class Controller{
 
         $action_method = $action.'Action';
         if(!method_exists($this,$action_method)){
-            $this->forword404();
+            $this->forward404();
         }
 
         if($this->needsAuthentication($action) && !$this->session->isAuthenticated()){
             throw new UnauthorizeActionException();
         }
 
-        $content = $this->$action_medhod($params);
+        $content = $this->$action_method($params);
 
         return $content;
     }
@@ -53,7 +53,7 @@ abstract class Controller{
             'session' => $this->session
         );
 
-        $view = new View($this->application->getVireDir(),$defaults);
+        $view = new View($this->application->getViewDir(),$defaults);
 
         if(is_null($template)){
             $template = $this->action_name;
@@ -64,7 +64,7 @@ abstract class Controller{
     }
 
     protected function forward404(){
-        throw new HttpNotFoundExcepion('Forwarded 404 page from '. $this->controller_name. '/'. $action_name);
+        throw new HttpNotFoundException('Forwarded 404 page from '. $this->controller_name. '/'. $this->action_name);
     }
 
     protected function redirect($url){
