@@ -10,7 +10,7 @@
    <?php echo $this->render('errors' , array('errors' => $errors)); ?>
    <?php endif ?>
     <textarea name="body"  cols="30" rows="10">
-        <?php echo $this->escape($body) ;?>
+        <?php echo $this->escape($body);?>
     </textarea>
     
     <p>

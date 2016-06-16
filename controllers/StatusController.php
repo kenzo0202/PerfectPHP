@@ -1,6 +1,8 @@
 <?php
 class StatusController extends Controller{
     
+    protected $auth_actions = array('index', 'post');
+    
     public function indexAction(){
         
         $user = $this->session->get('user');
@@ -19,11 +21,11 @@ class StatusController extends Controller{
             $this->forward404();
         }
         
-//        $token = $this->request->getPost('_token');
-//        if(!$this->checkCsrfToken('status/post', $token)){
-//            return $this->redirect('/');
-//        }
-//        
+        $token = $this->request->getPost('_token');
+        if(!$this->checkCsrfToken('status/post', $token)){
+            return $this->redirect('/');
+        }
+        
         $body = $this->request->getPost('body');
         
         $errors = array();
@@ -51,6 +53,39 @@ class StatusController extends Controller{
             '_token' => $this->generateCsrfToken('status/post'),
         
         ),'index');
+    }
+    
+    public function userAction($params){
+        $user = $this->db_manager->get('User')->fetchByUserName($params['user_name']);
+        if(!$user){
+            $this->forward404();
+        }
+        
+        $statuses = $this->db_manager->get('Status')->fetchAllByUserId($user['id']);
+        $following = null;
+        if($this->session->isAuthenticated()){
+            $my = $this->session->get('user');
+            if($my['id'] !== $user['id']){
+                $following = $this->db_manager->get('Following')->isFollowing($my['id'],$user['id']);
+            }
+        }
+        
+        return $this->render(array(
+            'user' => $user, 
+            'statuses' => $statuses,
+            'following' => $following,
+            '_token' => $this->generateCsrfToken('account/follow'),
+        ));
+    }
+    
+    public function showAction($params){
+        $status = $this->db_manager->get('Status')->fetchByIdAndUserName($params['id'], $params['user_name']);
+        
+        if(!$status){
+            $this->forward404();
+        }
+        
+        return $this->render(array('status'=> $status));
     }
 }
 
